@@ -19,12 +19,21 @@ The images come from made-up data (`tools/demo_events.py`), regenerated with `to
 ## Install and connect
 
 ```sh
-omarchy plugin add <repository-url> --enable
+omarchy plugin add https://github.com/danitrrga/omarchy-agenda.git --enable
+omarchy bar move io.github.danitrrga.agenda --section center   # optional: pick where it sits
 ```
 
 The first time the panel opens it goes straight to **settings**. Pick where your calendar comes from, then *Save and connect*. Settings are always one key away: `S` in the panel, or the `settings` link in its footer.
 
 Requires the system `python3`. No external libraries.
+
+### Remove
+
+```sh
+omarchy plugin remove io.github.danitrrga.agenda
+```
+
+This removes the plugin. Your settings and the last reading stay behind, so a reinstall picks up where you left off; delete `~/.config/omarchy/agenda/` (credentials, mode 600) and `~/.local/state/omarchy/agenda/` (the seven-day reading) to erase them.
 
 ### Open it with a key
 
@@ -33,7 +42,7 @@ Add a binding whose description starts with `Agenda`; settings read Hyprland's b
 ```lua
 -- ~/.config/hypr/bindings.lua
 hl.unbind("SUPER + SHIFT + C")   -- Omarchy's default: the HEY calendar web app
-o.bind("SUPER + SHIFT + C", "Agenda", "omarchy-shell shell toggle danitrrga.agenda '{}'")
+o.bind("SUPER + SHIFT + C", "Agenda", "omarchy-shell shell toggle io.github.danitrrga.agenda '{}'")
 ```
 
 The same key opens and closes the panel; `Esc` closes it from anywhere in it.

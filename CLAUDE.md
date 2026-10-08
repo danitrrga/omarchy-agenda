@@ -15,7 +15,7 @@ day/week panel. `README.md` says what it does; `SETUP-WITH-AGENT.md` is what the
 The repo is the source; the shell loads a copy from `~/.config/omarchy/plugins/<id>/` (it cannot be a
 symlink). Use the `omarchy-plugin-dev` skill: deploy with its `scripts/deploy_plugin.py <repo> --restart`
 (a restart is required after any QML change), watch `qs log -p /usr/share/omarchy/shell`, and drive the
-widget through its IPC target `danitrrga.agenda` (`state`, `open`, `settings true`, `day N`, `move N`).
+widget through its IPC target `io.github.danitrrga.agenda` (`state`, `open`, `settings true`, `day N`, `move N`).
 
 ## Rules that bit before
 

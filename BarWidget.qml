@@ -25,7 +25,7 @@ import "Model.js" as Model
 // private config; this file only ever sees whether one is stored.
 BarWidget {
   id: root
-  moduleName: "danitrrga.agenda"
+  moduleName: "io.github.danitrrga.agenda"
 
   // Absolute, derived from HOME: the shell does not inherit the login PATH.
   readonly property string home: Quickshell.env("HOME")
@@ -275,7 +275,7 @@ BarWidget {
   }
 
   IpcHandler {
-    target: "danitrrga.agenda"
+    target: "io.github.danitrrga.agenda"
 
     function refresh(): void { root.refresh() }
     function open(): void { root.open() }

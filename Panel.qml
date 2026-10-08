@@ -17,7 +17,7 @@ import "Model.js" as Model
 // is worse than either being slightly stale. Read-only: nothing here writes.
 Panel {
   id: root
-  moduleName: "danitrrga.agenda"
+  moduleName: "io.github.danitrrga.agenda"
   ipcTarget: ""
   manageIpc: false
 

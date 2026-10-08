@@ -14,7 +14,7 @@ You were launched from the Agenda widget's settings ("Set up with my agent"). Yo
 |---|---|
 | Config, mode 600, holds the credentials | `~/.config/omarchy/agenda/config.json` |
 | What the widget reads | `~/.local/state/omarchy/agenda/day.json` |
-| The tool | `~/.config/omarchy/plugins/danitrrga.agenda/agenda_ctl.py` |
+| The tool | `~/.config/omarchy/plugins/io.github.danitrrga.agenda/agenda_ctl.py` |
 
 Run the tool with `/usr/bin/python3 -I <path to agenda_ctl.py> <command>`.
 

@@ -10,19 +10,20 @@ the plugin deployed and enabled.
 
     python3 tools/screenshots.py --shot-script <path to plugin_shot.py>
 
-Writes docs/screenshots/{panel,settings,bar}.png. Nothing on the images comes from a real calendar.
+Writes docs/screenshots/{panel,settings,bar}.png and preview.png (a copy of panel.png). Nothing on the images comes from a real calendar.
 """
 import argparse
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.expanduser("~/.config/omarchy/agenda/config.json")
-PLUGIN = "danitrrga.agenda"
+PLUGIN = "io.github.danitrrga.agenda"
 SHELL = "/usr/share/omarchy/shell"
 
 
@@ -80,6 +81,8 @@ def main():
         wait_for(lambda s: s["source"] == "command" and s["configured"] and s["state"] == "now"
                  and s["main"]["title"] == "Design review", "the demo week to load")
         subprocess.run(shot + ["--out", os.path.join(out, "panel.png")], check=True)
+        # The marketplace lists a preview.png beside manifest.json.
+        shutil.copyfile(os.path.join(out, "panel.png"), os.path.join(REPO, "preview.png"))
         # Settings: an empty iCal form, so no path or credential of the user's is on the image.
         write_config({"source": "ics"})
         wait_for(lambda s: not s["configured"], "the empty configuration")
