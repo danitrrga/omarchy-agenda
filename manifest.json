@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "danitrrga.agenda",
+  "name": "Agenda",
+  "version": "1.0.0",
+  "author": "danitrrga",
+  "license": "MIT",
+  "description": "The calendar block running now and the next one in the bar, with the day and week agenda in a panel",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Agenda",
+    "description": "Which block is on now and how long is left; hover for the next one",
+    "category": "Time",
+    "allowMultiple": false,
+    "defaultSection": "left"
+  }
+}

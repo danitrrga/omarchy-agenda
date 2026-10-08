@@ -1,0 +1,27 @@
+# credentials: the plugin keeps them only in ~/.config/omarchy/agenda/, never in the repo
+.env
+.env.*
+*.local
+secrets.json
+tokens.json
+config.json
+
+# agent tooling and anything generated beside the code
+.claude/settings.local.json
+.claude/AGENT-SYSTEM.md
+.claude/*.bak
+.codex/
+.agents/
+.superpowers/
+.worktrees/
+
+# python / node
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+
+# editors, OS, backups
+.DS_Store
+Thumbs.db
+*.bak
