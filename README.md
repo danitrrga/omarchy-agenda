@@ -78,7 +78,7 @@ For people who already have an agent, a sync, or their own route to their calend
 
 - If the command contains `{out}`, that text is replaced by a path and the command must write the JSON there.
 - Otherwise the JSON is read from its standard output.
-- A non-zero exit code is an error; the last line of its stderr is shown in the panel.
+- A non-zero exit code is an error; the last line of its stderr is shown in the panel. So is an exit 0 that leaves no valid JSON (the line is added to "the command did not produce valid JSON"), so a script that swallows its own failure still says why. Anything in that line that equals an argument of the command is replaced by `…`, because a script's token lives in its arguments.
 - The command is split the way a shell would split it, but no shell runs it: quote a path that contains spaces.
 - Optional: a file to watch. When it changes the plugin refreshes at once (handy if an agent rewrites a cache).
 
@@ -117,6 +117,8 @@ Everything is stored in `~/.config/omarchy/agenda/config.json`, mode `600`. The 
 ## Use
 
 Left click opens the panel, middle click refreshes, right click opens Google Calendar. In the panel: arrows or `h`/`l` change day, `j`/`k` scroll, `t` goes to today, `r` refreshes, `s` opens settings, `Esc` closes. The panel's footer shows only the arrows and `s`; settings show the shortcut that opens the panel.
+
+When the last good reading is more than 30 minutes old, the calendar icon in the bar is replaced by its age (`45m`, `3h`, `2d`, `9d+`), the tooltip says how long the calendar has not synced, and the panel's footer says since when (the date too if it is not today) and why the last refresh failed.
 
 ## Tests
 

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.danitrrga.agenda",
   "name": "Agenda",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "danitrrga",
   "license": "MIT",
   "description": "The calendar block running now and the next one in the bar, with the day and week agenda in a panel",

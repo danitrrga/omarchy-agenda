@@ -53,7 +53,7 @@ The user creates their own OAuth client (type **Desktop app**) in their own Goog
 { "source": "command", "command": { "line": "python3 /path/to/script.py --out {out}", "watch": "/optional/file/whose/change/means/refresh" } }
 ```
 
-The program prints one JSON document on stdout, or writes it to the path that replaces `{out}`. It runs without a shell, every 10 minutes and when the panel opens (if the last reading is over two minutes old); non-zero exit is an error and the last line of its stderr is shown to the user. If the user already has an agent, a sync or an MCP that can read their calendar, write a small script that outputs this format.
+The program prints one JSON document on stdout, or writes it to the path that replaces `{out}`. It runs without a shell, every 10 minutes and when the panel opens (if the last reading is over two minutes old); non-zero exit is an error and the last line of its stderr is shown to the user (so is an exit 0 that leaves no valid JSON, so a script must not swallow its own failure silently: print the cause on stderr and exit non-zero; arguments of the command are hidden in that line). If the user already has an agent, a sync or an MCP that can read their calendar, write a small script that outputs this format.
 
 ```json
 {
