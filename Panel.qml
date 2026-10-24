@@ -160,7 +160,7 @@ Panel {
     if (!root.configured) return "no calendar connected"
     if (!root.loaded) return root.lastError !== "" ? "could not read the calendar · " + root.lastError : "reading the calendar…"
     if (root.failures > 0) return root.failures + (root.failures === 1 ? " calendar could not be read" : " calendars could not be read")
-    if (root.stale) return "not synced since " + root.stamp(root.asOf) + (root.lastError !== "" ? " · " + root.lastError : "")
+    if (root.stale) return "not synced since " + Model.stampSince(root.asOf, root.nowMs) + (root.lastError !== "" ? " · " + root.lastError : "")
     return "synced " + root.stamp(root.asOf)
   }
   readonly property bool footerBad: root.loaded ? (root.failures > 0 || root.stale) : root.lastError !== ""

@@ -160,6 +160,14 @@ function dayTitle(dayStartMs, now) {
   return (word === "today" || word === "tomorrow" ? word : WEEKDAYS_LONG[d.getDay()]) + " · " + tail
 }
 
+// When a reading was taken, for the panel footer: the time alone today, with the date on any other
+// day ("23 Oct 14:55"), because "since 14:55" says nothing about a day-old reading. "—" for none.
+function stampSince(ms, now) {
+  if (!(ms > 0)) return "—"
+  var d = new Date(ms)
+  return dayStart(ms) === dayStart(now) ? clock(ms) : d.getDate() + " " + MONTHS[d.getMonth()] + " " + clock(ms)
+}
+
 // How old a reading is once it is too old to trust, as a marker for the bar: "" while it is fresh
 // (30 minutes or less, or there is no usable reading), else "45m", "3h", "2d", or "9d+" past ten days.
 // Three characters at most, because the marker takes the icon's place and the bar must not change

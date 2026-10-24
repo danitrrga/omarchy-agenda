@@ -105,4 +105,15 @@ const d25 = M.dayStart(T("2026-10-25T12:00:00+01:00")); assert.strictEqual(M.clo
   // the real case: 2026-10-23 14:55 read at 2026-10-24 16:04 is a day old
   assert.strictEqual(M.staleAge(asOf, T("2026-10-24T16:04:00+02:00")), "1d")
 }
+// The footer says when the last good reading was; "14:55" alone is ambiguous once the reading is a day old.
+{
+  // Red before the change: TypeError: M.stampSince is not a function
+  const now = T("2026-10-24T16:04:00+02:00")
+  assert.strictEqual(M.stampSince(T("2026-10-24T15:40:00+02:00"), now), "15:40", "today: the time alone")
+  assert.strictEqual(M.stampSince(T("2026-10-23T14:55:00+02:00"), now), "23 Oct 14:55", "another day: date and time")
+  assert.strictEqual(M.stampSince(T("2026-10-24T00:00:00+02:00"), now), "00:00", "midnight today is today")
+  assert.strictEqual(M.stampSince(T("2026-10-23T23:59:00+02:00"), now), "23 Oct 23:59")
+  assert.strictEqual(M.stampSince(0, now), "—", "no reading")
+  assert.strictEqual(M.stampSince(NaN, now), "—")
+}
 console.log("ALL PASS")
