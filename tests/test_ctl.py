@@ -446,6 +446,25 @@ class Hardening(Base):
         self.one_line_failure(long, "a long stderr line")
         self.assertLess(len(long.stderr), 300)
 
+    def test_a_command_argument_echoed_on_stderr_never_reaches_the_error(self):
+        # A script's token lives in its arguments (config-show hides them for that reason), and a program
+        # that complains about its own arguments echoes them. The error is shown in the panel and in the
+        # IPC state(), so the arguments are scrubbed from the line, and control characters with them.
+        # Control, seen failing before the scrub: AssertionError: 'tok_9f3a7c1d5e' unexpectedly found in
+        # 'the command did not produce valid JSON: \x1b[31mbad argument tok_9f3a7c1d5e and sk_live_4b8d2f\x1b[0m\n' : exit 0
+        for name, code in (("exit 0", ""), ("exit 1", "sys.exit(1)\n")):
+            script = os.path.join(self.dir.name, "echo.py")
+            with open(script, "w") as f:
+                f.write("import sys\nsys.stderr.write('\\x1b[31mbad argument ' + sys.argv[1] + ' and ' + sys.argv[2].split('=')[1] + '\\x1b[0m\\n')\n" + code)
+            self.write_cfg({"source": "command", "command": {"line": "{} {} tok_9f3a7c1d5e --key=sk_live_4b8d2f {}".format(
+                shlex.quote(sys.executable), shlex.quote(script), shlex.quote(self.out + ".keep"))}})
+            r = self.ctl("fetch", "--out", self.out)
+            self.one_line_failure(r, name)
+            self.assertNotIn("tok_9f3a7c1d5e", r.stderr, name)
+            self.assertNotIn("sk_live_4b8d2f", r.stderr, name)
+            self.assertNotIn("\x1b", r.stderr, name + ": control characters")
+            self.assertIn("bad argument", r.stderr, name + ": the rest of the line stays")
+
     def test_parallel_fetches_do_not_trample_each_other(self):
         self.raw_command("import json\nprint(json.dumps({'events_by_date': {'2026-10-09': [{'start': '2026-10-09T10:00:00', 'summary': 'x' * 100} for _ in range(30000)]}}))\n")
         procs = [subprocess.Popen([sys.executable, "-I", CTL, "fetch", "--out", self.out], env=self.env(),

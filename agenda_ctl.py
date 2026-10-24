@@ -277,6 +277,25 @@ def run_command(argv):
     return proc.returncode, stdout, stderr
 
 
+def cause_line(stderr, argv):
+    """The last line of a command's stderr, safe to show: one line, at most 200 characters, with
+    control characters dropped and every argument of the command replaced by an ellipsis. A script's
+    token lives in its arguments, and a program that complains about them echoes them; the line goes
+    to the panel and to the IPC state, where no credential may appear. Flags and paths are kept: they
+    are what makes the line useful and are not where a token lives."""
+    lines = stderr.decode("utf-8", "replace").strip().splitlines()
+    line = "".join(ch for ch in (lines[-1] if lines else "") if ch.isprintable()).strip()
+    hidden = set()
+    for part in argv[1:]:
+        if part.startswith("-"):
+            part = part.partition("=")[2]  # --token=abc hides abc; a bare flag is not a value
+        if len(part) >= 4 and not part.startswith(("/", "~", "./")):
+            hidden.add(part)
+    for part in sorted(hidden, key=len, reverse=True):
+        line = line.replace(part, "\u2026")
+    return line[:200]
+
+
 def fetch_command_source(cfg, out):
     line = str(section(cfg, "command").get("line", "")).strip()
     if not line:
@@ -300,7 +319,7 @@ def fetch_command_source(cfg, out):
         argv = [part.replace("{out}", tmp_out) for part in argv]
     try:
         code, stdout, stderr = run_command(argv)
-        tail = (stderr.decode("utf-8", "replace").strip().splitlines() or [""])[-1].strip()[:200]
+        tail = cause_line(stderr, argv)
         if code != 0:
             raise AgendaError("the command exited with code {}{}".format(code, ": " + tail if tail else ""))
         try:
