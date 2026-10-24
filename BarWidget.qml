@@ -73,7 +73,9 @@ BarWidget {
     main: { kind: "empty", title: "connect your calendar", value: "", urgent: false },
     rest: null, progress: -1, event: null
   })
-  readonly property bool stale: loaded && asOf > 0 && nowMs - asOf > 30 * 60000
+  // How old the reading is once it cannot be trusted ("45m", "2d"), else "": Model decides.
+  readonly property string staleAge: loaded ? Model.staleAge(asOf, nowMs) : ""
+  readonly property bool stale: staleAge !== ""
   readonly property bool refreshing: refreshProc.running
   property int refreshSerial: 0  // bumps when a refresh ends, for the settings view
 
@@ -308,6 +310,7 @@ BarWidget {
         failures: root.failures,
         asOf: root.asOf,
         stale: root.stale,
+        staleAge: root.staleAge,
         loaded: root.loaded,
         configured: root.configured,
         source: root.source,
@@ -336,7 +339,7 @@ BarWidget {
     hasVisualContent: true
     dimmed: root.loaded && root.face.state === "empty"
     fixedWidth: root.vertical ? -1 : root.contentWidth + scaledHorizontalMargin * 2
-    tooltipText: root.stale ? "Calendar not synced" : ""
+    tooltipText: root.stale ? "Calendar not synced for " + root.staleAge : ""
 
     onTooltipHoveredChanged: {
       if (tooltipHovered) rollTimer.restart()
@@ -363,9 +366,22 @@ BarWidget {
       textFormat: Text.PlainText
       text: "󰃰"
       color: button.foreground
-      opacity: root.loaded ? (root.stale ? 0.6 : 1) : 0.5
+      // Stale: the age takes the icon's place (below), so the slot, and with it the bar, keeps its width.
+      opacity: root.loaded ? (root.stale ? 0 : 1) : 0.5
       font.family: button.fontFamily
       font.pixelSize: Style.bar.iconFont
+      renderType: Text.NativeRendering
+    }
+
+    Text {
+      visible: !root.vertical && root.stale
+      anchors.centerIn: iconText
+      textFormat: Text.PlainText
+      text: root.staleAge
+      color: button.activeColor
+      font.family: button.fontFamily
+      font.pixelSize: Math.round(Style.bar.iconFont * 0.7)
+      font.bold: true
       renderType: Text.NativeRendering
     }
 

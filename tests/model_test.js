@@ -81,4 +81,28 @@ const d25 = M.dayStart(T("2026-10-25T12:00:00+01:00")); assert.strictEqual(M.clo
   const L2 = M.load({ events_by_date: { "2026-02-30": [{ id: "z", summary: "z", start: "2026-02-30", end: "2026-03-01" }] } })
   assert.strictEqual(L2.events.length, 0); assert.strictEqual(L2.failures, 1)
 }
+// Stale data must say so on the bar itself: a compact age, never more than three characters so the
+// marker fits the icon slot, and empty while the reading is fresh (the threshold is the widget's 30 min).
+{
+  // Red before the change: TypeError: M.staleAge is not a function
+  const asOf = T("2026-10-23T14:55:00+02:00")
+  const at = ms => asOf + ms
+  const MIN = 60000, H = 60 * MIN, D = 24 * H
+  assert.strictEqual(M.staleAge(asOf, at(0)), "", "fresh")
+  assert.strictEqual(M.staleAge(asOf, at(30 * MIN)), "", "exactly 30 min is still fresh")
+  assert.strictEqual(M.staleAge(asOf, at(30 * MIN + 1)), "30m", "just past the threshold")
+  assert.strictEqual(M.staleAge(asOf, at(59 * MIN + 59000)), "59m", "minutes are floored, never rounded up to 60m")
+  assert.strictEqual(M.staleAge(asOf, at(H)), "1h")
+  assert.strictEqual(M.staleAge(asOf, at(23 * H + 59 * MIN)), "23h")
+  assert.strictEqual(M.staleAge(asOf, at(D)), "1d")
+  assert.strictEqual(M.staleAge(asOf, at(25 * H)), "1d")
+  assert.strictEqual(M.staleAge(asOf, at(9 * D + 23 * H)), "9d")
+  assert.strictEqual(M.staleAge(asOf, at(10 * D)), "9d+", "capped at three characters")
+  assert.strictEqual(M.staleAge(asOf, at(400 * D)), "9d+")
+  assert.strictEqual(M.staleAge(0, T("2026-10-24T16:04:00+02:00")), "", "no reading yet is not stale")
+  assert.strictEqual(M.staleAge(NaN, T("2026-10-24T16:04:00+02:00")), "", "an unparseable as_of is not stale")
+  assert.strictEqual(M.staleAge(at(2 * H), asOf), "", "an as_of in the future (clock skew) is not stale")
+  // the real case: 2026-10-23 14:55 read at 2026-10-24 16:04 is a day old
+  assert.strictEqual(M.staleAge(asOf, T("2026-10-24T16:04:00+02:00")), "1d")
+}
 console.log("ALL PASS")

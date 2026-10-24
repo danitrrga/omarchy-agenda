@@ -160,6 +160,21 @@ function dayTitle(dayStartMs, now) {
   return (word === "today" || word === "tomorrow" ? word : WEEKDAYS_LONG[d.getDay()]) + " · " + tail
 }
 
+// How old a reading is once it is too old to trust, as a marker for the bar: "" while it is fresh
+// (30 minutes or less, or there is no usable reading), else "45m", "3h", "2d", or "9d+" past ten days.
+// Three characters at most, because the marker takes the icon's place and the bar must not change
+// width. Floored, so "59m" never shows as "60m".
+var STALE_MS = 30 * 60000
+
+function staleAge(asOf, now) {
+  if (!(asOf > 0) || !(now - asOf > STALE_MS)) return ""
+  var age = now - asOf
+  if (age < 60 * 60000) return Math.floor(age / 60000) + "m"
+  if (age < DAY_MS) return Math.floor(age / (60 * 60000)) + "h"
+  if (age < 10 * DAY_MS) return Math.floor(age / DAY_MS) + "d"
+  return "9d+"
+}
+
 // The bar's two faces. `rest` is the face shown while hovering and may be
 // null when there is nothing worth rolling to. Each face is plain data so the
 // widget only lays it out and a test can read it without a display.
