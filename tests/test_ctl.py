@@ -430,6 +430,22 @@ class Hardening(Base):
         self.one_line_failure(r, "a command that wrote nothing")
         self.assertIn("valid JSON", r.stderr)
 
+    def test_a_command_that_fails_quietly_has_its_cause_in_the_error(self):
+        # Control, seen failing before the change in agenda_ctl.py: with a command that exits 0, writes
+        # nothing and says why on stderr, lastError was only "the command did not produce valid JSON"
+        # (AssertionError: 'deleted_client: The OAuth client was deleted' not found in 'the command did not produce valid JSON\n').
+        # The cause is the command's last stderr line, cut to 200 characters, so it stays one line.
+        self.raw_command("import sys\nsys.stderr.write('[calendar-cache] first\\n[calendar-cache] refresh failed: deleted_client: The OAuth client was deleted.\\n')\n")
+        r = self.ctl("fetch", "--out", self.out)
+        self.one_line_failure(r, "a command that exits 0 and prints its cause on stderr")
+        self.assertIn("valid JSON", r.stderr)
+        self.assertIn("deleted_client: The OAuth client was deleted", r.stderr)
+        self.assertNotIn("first", r.stderr, "only the last stderr line")
+        self.raw_command("import sys\nsys.stderr.write('x' * 5000 + '\\n')\n")
+        long = self.ctl("fetch", "--out", self.out)
+        self.one_line_failure(long, "a long stderr line")
+        self.assertLess(len(long.stderr), 300)
+
     def test_parallel_fetches_do_not_trample_each_other(self):
         self.raw_command("import json\nprint(json.dumps({'events_by_date': {'2026-10-09': [{'start': '2026-10-09T10:00:00', 'summary': 'x' * 100} for _ in range(30000)]}}))\n")
         procs = [subprocess.Popen([sys.executable, "-I", CTL, "fetch", "--out", self.out], env=self.env(),

@@ -300,8 +300,8 @@ def fetch_command_source(cfg, out):
         argv = [part.replace("{out}", tmp_out) for part in argv]
     try:
         code, stdout, stderr = run_command(argv)
+        tail = (stderr.decode("utf-8", "replace").strip().splitlines() or [""])[-1].strip()[:200]
         if code != 0:
-            tail = (stderr.decode("utf-8", "replace").strip().splitlines() or [""])[-1][:200]
             raise AgendaError("the command exited with code {}{}".format(code, ": " + tail if tail else ""))
         try:
             if uses_file:
@@ -313,7 +313,9 @@ def fetch_command_source(cfg, out):
                 raise AgendaError("the command printed more than 25 MB")
             doc = json.loads(raw.decode("utf-8"))
         except (OSError, ValueError, RecursionError):  # UnicodeDecodeError is a ValueError
-            raise AgendaError("the command did not produce valid JSON")
+            # A command that exits 0 and writes nothing usually says why on stderr (a best-effort
+            # refresher does exactly that); without this line the cause is lost.
+            raise AgendaError("the command did not produce valid JSON{}".format(": " + tail if tail else ""))
     finally:
         if tmp_out:
             with contextlib.suppress(OSError):
