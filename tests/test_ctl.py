@@ -451,17 +451,17 @@ class Hardening(Base):
         # that complains about its own arguments echoes them. The error is shown in the panel and in the
         # IPC state(), so the arguments are scrubbed from the line, and control characters with them.
         # Control, seen failing before the scrub: AssertionError: 'tok_9f3a7c1d5e' unexpectedly found in
-        # 'the command did not produce valid JSON: \x1b[31mbad argument tok_9f3a7c1d5e and sk_live_4b8d2f\x1b[0m\n' : exit 0
+        # 'the command did not produce valid JSON: \x1b[31mbad argument tok_9f3a7c1d5e and key_4b8d2f9a\x1b[0m\n' : exit 0
         for name, code in (("exit 0", ""), ("exit 1", "sys.exit(1)\n")):
             script = os.path.join(self.dir.name, "echo.py")
             with open(script, "w") as f:
                 f.write("import sys\nsys.stderr.write('\\x1b[31mbad argument ' + sys.argv[1] + ' and ' + sys.argv[2].split('=')[1] + '\\x1b[0m\\n')\n" + code)
-            self.write_cfg({"source": "command", "command": {"line": "{} {} tok_9f3a7c1d5e --key=sk_live_4b8d2f {}".format(
+            self.write_cfg({"source": "command", "command": {"line": "{} {} tok_9f3a7c1d5e --key=key_4b8d2f9a {}".format(
                 shlex.quote(sys.executable), shlex.quote(script), shlex.quote(self.out + ".keep"))}})
             r = self.ctl("fetch", "--out", self.out)
             self.one_line_failure(r, name)
             self.assertNotIn("tok_9f3a7c1d5e", r.stderr, name)
-            self.assertNotIn("sk_live_4b8d2f", r.stderr, name)
+            self.assertNotIn("key_4b8d2f9a", r.stderr, name)
             self.assertNotIn("\x1b", r.stderr, name + ": control characters")
             self.assertIn("bad argument", r.stderr, name + ": the rest of the line stays")
 
